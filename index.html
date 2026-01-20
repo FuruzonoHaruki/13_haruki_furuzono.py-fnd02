@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+
+# ウィンドウサイズを設定
+sns.set(rc = {"figure.figsize": (15, 8)})
+
+# ファイルを読み込んでデータ取得（df）
+with open("不具合発生データ.csv", "r", encoding = "UTF-8") as basefile:
+    df = pd.read_csv(basefile)
+
+# グラフタイトルを表示
+plt.rcParams['font.family'] = 'Yu Gothic' #日本語対応
+plt.title("工程別：不具合発生タイミング", \
+    fontsize = 25, \
+    fontweight = "bold", \
+    pad=10
+)
+sns.set_theme()
+
+# 件数の多い順に並べるための順序を作成
+order = df["発生タイミング"].value_counts().index
+
+# ★縦棒グラフ
+output_graph = sns.countplot(x = "発生タイミング", data = df, order = order)
+
+# 総件数を表示
+total = df["発生タイミング"].notna().sum()
+output_graph.text(
+    0.9, 0.9,                               #位置座標
+    f"総件数：{total}件",
+    transform = output_graph.transAxes,     #位置を固定
+    fontsize = 13, fontweight = "bold", fontfamily = "Yu Gothic",
+    bbox = dict(fc = "white", ec = "gray")  #背景白、枠灰色
+)
+
+# 棒1つずつ、件数ラベルを表示
+for element in output_graph.containers:
+    output_graph.bar_label(element, fmt = '%.0f', padding = 3, fontsize = 11)
+
+# ラベルを縦向きに（1文字ずつ改行）
+labels = [text.get_text() for text in output_graph.get_xticklabels()]
+labels_new = ["\n".join(list(i)) for i in labels]
+output_graph.set_xticklabels(labels_new)
+
+plt.subplots_adjust(bottom = 0.30) # ←画面下部の余白を固定してはみ出しを防止
+
+plt.show()
